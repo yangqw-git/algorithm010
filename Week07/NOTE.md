@@ -1,80 +1,217 @@
 #### 学习笔记
 
-##### 1. 动态规划
+##### 1. 字典树和并查集
 
-###### 1.1 回顾
+###### 1.1 字典树（Trie树）
 
-> 本质 : 寻找重复性 --> 计算机指令集
+> 又称单词查找树或键树，是一种树形结构。典型应用是用于统计和排序大量的字符串，所以经常被搜索引擎系统用于文本词频统计。
+>
+> 优点：最大限度的减少无谓的字符串比较，查找效率比哈希表高。
 
+**基本性质**
+
+1. 结点本身不存完整单词；
+2. 从根节点到某一节点，路径上经过的字符连接起来，为该节点对应的字符串；
+3. 每个结点的所有子结点路径代表的字符都不相同。
+
+**核心思想**
+
+1. Trie树的核心思想是空间换时间；
+2. 利用字符串的公共前缀降低查询时间的开销以达到提高效率的目的。
+
+**Trie树代码模板**
+
+```java
+class Trie {
+    private boolean isEnd;
+    private Trie[] next;
+    /** Initialize your data structure here. */
+    public Trie() {
+        isEnd = false;
+        next = new Trie[26];
+    }
+    
+    /** Inserts a word into the trie. */
+    public void insert(String word) {
+        if (word == null || word.length() == 0) return;
+        Trie curr = this;
+        char[] words = word.toCharArray();
+        for (int i = 0;i < words.length;i++) {
+            int n = words[i] - 'a';
+            if (curr.next[n] == null) curr.next[n] = new Trie();
+            curr = curr.next[n];
+        }
+        curr.isEnd = true;
+    }
+    
+    /** Returns if the word is in the trie. */
+    public boolean search(String word) {
+        Trie node = searchPrefix(word);
+        return node != null && node.isEnd;
+    }
+    
+    /** Returns if there is any word in the trie that starts with the given prefix. */
+    public boolean startsWith(String prefix) {
+        Trie node = searchPrefix(prefix);
+        return node != null;
+    }
+
+    private Trie searchPrefix(String word) {
+        Trie node = this;
+        char[] words = word.toCharArray();
+        for (int i = 0;i < words.length;i++) {
+            node = node.next[words[i] - 'a'];
+            if (node == null) return null;
+        }
+        return node;
+    }
+}
 ```
-- 抵制人肉递归，人肉递归低效，很累
-- 找最近最简方法，将其拆解成可重复子问题
-- 数学归纳法思维
+
+
+
+###### 1.2 并查集
+
+**适用场景**
+
+1. 组团、配对问题
+2. 分组
+
+**基本操作**
+
+1. makeSet ( s ) : 建立并查集，包含s个元素的集合
+2. unionSet ( x,y ) : 把元素x和元素y所在集合合并
+3. find (x) : 找到元素x所在集合的代表
+
+**并查集代码模板**
+
+```java
+class UnionFind {
+	private int count = 0; 
+	private int[] parent; 
+	public UnionFind(int n) { 
+		count = n; 
+		parent = new int[n]; 
+		for (int i = 0; i < n; i++) { 
+			parent[i] = i;
+		}
+	} 
+	public int find(int p) { 
+		while (p != parent[p]) { 
+			parent[p] = parent[parent[p]]; 
+			p = parent[p]; 
+		}
+		return p; 
+	}
+	public void union(int p, int q) { 
+		int rootP = find(p); 
+		int rootQ = find(q); 
+		if (rootP == rootQ) return; 
+		parent[rootP] = rootQ; 
+		count--;
+	}
+}
 ```
 
-###### 1.2 定义 Dynamic Programming
-
-> 动态规划(递推)，将复杂问题拆分为简单的子问题，用递归的方式；分治+最优子结构
-
-**关键点**
-
-1. 动态规划 和 递归或者分治 没有根本上的区别（关键是看有无最优子结构）
-2. 共性: 找重复子问题
-3. 差异性: 最优子结构、中途可以淘汰次优解
-
-**动态规划关键点**
-
-1. 最优子结构 opt[n] = best_of(opt[n-1],opt[n-2],...)
-2. 储存中间状态
-3. 递推公式（状态转移方程 或者 DP方程）
-
-**动态规划小结**
-
-1. 打破自己的思维惯性，形成机器思维（找重复性）
-2. 这是理解复杂逻辑的关键
-3. 也是职业进阶的要点要领
-
-**动态规划步骤**
-
-1. 找重复子问题（分治）
-2. 定义状态数组
-3. 动态规划方程
 
 
-
+>##### **参考链接**
+>
+>- [二叉树的层次遍历](https://leetcode-cn.com/problems/binary-tree-level-order-traversal/)
+>- [实现 Trie ](https://leetcode-cn.com/problems/implement-trie-prefix-tree/solution/)
+>- [ Tire 树代码模板](https://shimo.im/docs/DP53Y6rOwN8MTCQH)
+>- [并查集代码模板](https://shimo.im/docs/VtcxL0kyp04OBHak)
+>
 >**实战例题**
 >
->- [不同路径](https://leetcode-cn.com/problems/unique-paths/)（Facebook、亚马逊、微软在半年内面试中考过）
->- [不同路径 II ](https://leetcode-cn.com/problems/unique-paths-ii/)（谷歌、美团、微软在半年内面试中考过）
->- [最长公共子序列](https://leetcode-cn.com/problems/longest-common-subsequence/)（字节跳动、谷歌、亚马逊在半年内面试中考过）
->- [ MIT 动态规划课程最短路径算法](https://www.bilibili.com/video/av53233912?from=search&seid=2847395688604491997)
->- [爬楼梯](https://leetcode-cn.com/problems/climbing-stairs/description/)（阿里巴巴、腾讯、字节跳动在半年内面试常考）
->- [三角形最小路径和](https://leetcode-cn.com/problems/triangle/description/)（亚马逊、苹果、字节跳动在半年内面试考过）
->- 三角形最小路径和高票回答：[ https://leetcode.com/problems/triangle/discuss/38735/Python-easy-to-understand-solutions-(top-down-bottom-up) ](https://leetcode.com/problems/triangle/discuss/38735/Python-easy-to-understand-solutions-(top-down-bottom-up))
->- [最大子序和](https://leetcode-cn.com/problems/maximum-subarray/)（亚马逊、字节跳动在半年内面试常考）
->- [乘积最大子数组](https://leetcode-cn.com/problems/maximum-product-subarray/description/)（亚马逊、字节跳动、谷歌在半年内面试中考过）
->- [零钱兑换](https://leetcode-cn.com/problems/coin-change/description/)（亚马逊在半年内面试中常考）
->- [打家劫舍](https://leetcode-cn.com/problems/house-robber/)（字节跳动、谷歌、亚马逊在半年内面试中考过）
->- [打家劫舍 II ](https://leetcode-cn.com/problems/house-robber-ii/description/)（字节跳动在半年内面试中考过）
->- [买卖股票的最佳时机](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock/#/description)（亚马逊、字节跳动、Facebook 在半年内面试中常考）
->- [买卖股票的最佳时机 II ](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-ii/)（亚马逊、字节跳动、微软在半年内面试中考过）
->- [买卖股票的最佳时机 III ](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-iii/)（字节跳动在半年内面试中考过）
->- [最佳买卖股票时机含冷冻期](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/)（谷歌、亚马逊在半年内面试中考过）
->- [买卖股票的最佳时机 IV ](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-iv/)（谷歌、亚马逊、字节跳动在半年内面试中考过）
->- [买卖股票的最佳时机含手续费](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/)
->- [一个方法团灭 6 道股票问题](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock/solution/yi-ge-fang-fa-tuan-mie-6-dao-gu-piao-wen-ti-by-l-3/)
+>- [实现 Trie (前缀树) ](https://leetcode-cn.com/problems/implement-trie-prefix-tree/#/description)（亚马逊、微软、谷歌在半年内面试中考过）
+>- [单词搜索 II ](https://leetcode-cn.com/problems/word-search-ii/)（亚马逊、微软、苹果在半年内面试中考过）
+>- 分析单词搜索 2 用 Tire 树方式实现的时间复杂度
+>- [朋友圈](https://leetcode-cn.com/problems/friend-circles)（亚马逊、Facebook、字节跳动在半年内面试中考过）
+>- [岛屿数量](https://leetcode-cn.com/problems/number-of-islands/)（近半年内，亚马逊在面试中考查此题达到 361 次）
+>- [被围绕的区域](https://leetcode-cn.com/problems/surrounded-regions/)（亚马逊、eBay、谷歌在半年内面试中考过）
+
+
+
+##### 2. 高级搜索
+
+###### 2.1 剪枝
+
+**初级搜索**
+
+1. 朴素搜索
+2. 优化方式：不重复、剪枝
+3. 搜索方向：DFS、BFS
+
+**高级搜索**
+
+1. 剪枝
+2. 双向搜索、启发式搜索
+
+**回溯法**
+
+> ​		回溯法采用试错思想，尝试分步的去解决一个问题。在分步解决问题的过程中，当发现现有的分步不能得到正确的解答时，它将取消上一步甚至上几步的计算，再通过其他的分步再次尝试。
 >
->**高级DP实战例题**
+> ​		回溯法通常用递归实现，可能出现两种情况：
 >
->- [完全平方数](https://leetcode-cn.com/problems/perfect-squares/)（亚马逊、谷歌在半年内面试中考过）
->- [编辑距离](https://leetcode-cn.com/problems/edit-distance/) **（重点）**
->- [跳跃游戏](https://leetcode-cn.com/problems/jump-game/)（亚马逊在半年内面试中考过）
->- [跳跃游戏 II ](https://leetcode-cn.com/problems/jump-game-ii/)（亚马逊、华为字节跳动在半年内面试中考过）
->- [不同路径](https://leetcode-cn.com/problems/unique-paths/)（Facebook、亚马逊、微软在半年内面试中考过）
->- [不同路径 II ](https://leetcode-cn.com/problems/unique-paths-ii/)（谷歌、美团、微软在半年内面试中考过）
->- [不同路径 III ](https://leetcode-cn.com/problems/unique-paths-iii/)（谷歌在半年内面试中考过）
->- [零钱兑换](https://leetcode-cn.com/problems/coin-change/)（亚马逊在半年内面试中常考）
->- [零钱兑换 II ](https://leetcode-cn.com/problems/coin-change-2/)（亚马逊、字节跳动在半年内面试中考过）
+>   - 找到一个可能存在的正确答案
+>
+>   - 尝试了所有可能的方法后宣告没有答案
+>
+>     最坏情况下，时间复杂度是指数级的。
+
+
+
+###### 2.2 双向BFS
+
+
+
+###### 2.3 启发式搜索 (A*)
+
+
+
+
+
+> ##### **参考链接**
+>
+> - [ DFS 代码模板](https://shimo.im/docs/UdY2UUKtliYXmk8t)
+> - [ BFS 代码模板](https://shimo.im/docs/ZBghMEZWix0Lc2jQ)
+> - [ AlphaZero Explained ](https://nikcheerla.github.io/deeplearningschool/2018/01/01/AlphaZero-Explained/)
+> - [棋类复杂度](https://en.wikipedia.org/wiki/Game_complexity)
+> - [ A* 代码模板](https://shimo.im/docs/8CzMlrcvbWwFXA8r)
+> - [相似度测量方法](https://dataaspirant.com/2015/04/11/five-most-popular-similarity-measures-implementation-in-python/)
+> - [二进制矩阵中的最短路径的 A* 解法](https://leetcode.com/problems/shortest-path-in-binary-matrix/discuss/313347/A*-search-in-Python)
+> - [ 8 puzzles 解法比较](https://zxi.mytechroad.com/blog/searching/8-puzzles-bidirectional-astar-vs-bidirectional-bfs/)
+>
+> **实战例题**
+>
+> - [爬楼梯](https://leetcode-cn.com/problems/climbing-stairs/)（阿里巴巴、腾讯、字节跳动在半年内面试常考）
+> - [括号生成](https://leetcode-cn.com/problems/generate-parentheses/)（亚马逊、Facebook、字节跳动在半年内面试中考过）
+> - [ N 皇后](https://leetcode-cn.com/problems/n-queens/)（亚马逊、苹果、字节跳动在半年内面试中考过）
+> - [有效的数独](https://leetcode-cn.com/problems/valid-sudoku/description/)（亚马逊、苹果、微软在半年内面试中考过）
+> - [解数独](https://leetcode-cn.com/problems/sudoku-solver/#/description)（亚马逊、华为、微软在半年内面试中考过）
+> - [单词接龙](https://leetcode-cn.com/problems/word-ladder/)（亚马逊、Facebook、谷歌在半年内面试中考过）
+> - [最小基因变化](https://leetcode-cn.com/problems/minimum-genetic-mutation/)（谷歌、Twitter、腾讯在半年内面试中考过）
+> - 总结双向 BFS 代码模版
+> - [二进制矩阵中的最短路径](https://leetcode-cn.com/problems/shortest-path-in-binary-matrix/)（亚马逊、字节跳动、Facebook 在半年内面试中考过）
+> - [滑动谜题](https://leetcode-cn.com/problems/sliding-puzzle/)（微软、谷歌、Facebook 在半年内面试中考过）
+> - [解数独](https://leetcode-cn.com/problems/sudoku-solver/)（微软、华为、亚马逊在半年内面试中考过）
+
+
+
+##### 3. 红黑树 & AVL树
+
+###### 3.1 AVL树
+
+
+
+###### 3.2 红黑树
+
+
+
+
+
+> - [平衡树](https://en.wikipedia.org/wiki/Self-balancing_binary_search_tree)
 
 
 
