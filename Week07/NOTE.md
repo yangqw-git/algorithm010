@@ -1,8 +1,8 @@
-#### 学习笔记
+### 学习笔记
 
-##### 1. 字典树和并查集
+#### 1. 字典树和并查集
 
-###### 1.1 字典树（Trie树）
+##### 1.1 字典树（Trie树）
 
 > 又称单词查找树或键树，是一种树形结构。典型应用是用于统计和排序大量的字符串，所以经常被搜索引擎系统用于文本词频统计。
 >
@@ -70,7 +70,7 @@ class Trie {
 
 
 
-###### 1.2 并查集
+##### 1.2 并查集
 
 **适用场景**
 
@@ -133,9 +133,9 @@ class UnionFind {
 
 
 
-##### 2. 高级搜索
+#### 2. 高级搜索
 
-###### 2.1 剪枝
+##### 2.1 剪枝
 
 **初级搜索**
 
@@ -162,13 +162,84 @@ class UnionFind {
 
 
 
-###### 2.2 双向BFS
+##### 2.2 双向BFS
+
+> 从前后两端同时开始BFS遍历
+
+**代码模板**
+
+```java
+public int ladderLength(String beginWord, String endWord, List<String> wordList) {
+        Map<String,List<String>> tempMap = new HashMap<String,List<String>>();
+        // 定义两个队列
+        Set<String> q1 = new HashSet<>();
+        Set<String> q2 = new HashSet<>();
+        // 定义visited数组
+        Set<String> visited = new HashSet<String>();
+        q1.add(beginWord);
+        q2.add(endWord);
+        int step = 1;
+        while (!q1.isEmpty() && !q2.isEmpty()) {
+            Set<String> temp = new HashSet<>();
+            for (String cur : q1) {
+                // 前后遍历相交的时候，说明找到结果了
+                if (q2.contains(cur)) {
+                    return step;
+                }
+                // 记录visited
+                visited.add(cur);
+                // 处理当前节点
+                char[] curArr = cur.toCharArray();
+                for (int i = 0; i < curArr.length; i++) {
+                    char c = curArr[i];
+                    curArr[i] = '*';
+                    List<String> list = tempMap.get(String.valueOf(curArr));
+                    if (list != null && list.size() > 0) {
+                        for (String s : list) {
+                            // 将相邻节点加入队列
+                            if (!visited.contains(s)) {
+                                temp.add(s);
+                            }
+                        }
+                    }
+                    curArr[i] = c;
+                }
+            }
+            // 步数+1，前后队列互换
+            step++;
+            q1 = q2;
+            q2 = temp;
+        }
+        return 0;
+    }
+```
 
 
 
-###### 2.3 启发式搜索 (A*)
+##### 2.3 启发式搜索 Heuristic Search(A*)
 
+**代码模板**
 
+```python
+def AstarSearch(graph, start, end):
+	# 将BFS的队列换成优先队列
+	pq = collections.priority_queue() # 优先级 —> 估价函数
+	pq.append([start]) 
+	visited.add(start)
+	while pq: 
+		node = pq.pop()
+		visited.add(node)
+		process(node) 
+		nodes = generate_related_nodes(node) 
+   unvisited = [node for node in nodes if node not in visited]
+		pq.push(unvisited)
+```
+
+**估价函数**
+
+> ​		启发式函数：h(n)，用来评价哪些节点最有希望是我们要找的节点，返回一个非负实数，可以认为是从n的目标节点路径的估计成本。
+>
+> ​		启发式函数是一种告知搜索方向的方法，它提供了一种明智的方法来猜测哪个邻居节点会导向一个目标。
 
 
 
@@ -199,15 +270,53 @@ class UnionFind {
 
 
 
-##### 3. 红黑树 & AVL树
+#### 3. 红黑树 & AVL树
 
-###### 3.1 AVL树
+##### 3.1 AVL树
 
+1. 发明者G.M.Adelson-Velsky和Evgenii Landis
 
+2. Balance Factor(平衡因子)：
 
-###### 3.2 红黑树
+   左子树高度 减去 右子树高度（有时相反）。
 
+   Balance factor = {-1,0,1}
 
+3. 通过旋转操作来进行平衡（四种）
+
+**旋转操作**
+
+1. 右右子树 -> 左旋
+2. 左左子树 -> 右旋
+3. 左右子树 -> 左右旋
+4. 右左子树 -> 右左旋
+
+**AVL总结**
+
+1. 平衡二叉搜索树
+
+2. 每个节点存balance factor = {-1,0,1}
+
+3. 四种旋转操作
+
+   不足：节点需要存储额外信息、且调整次数频繁
+
+##### 3.2 红黑树 Red-black Tree
+
+> 红黑树是一种**近似平衡**的二叉搜索树，满足任何一个节点的左右子树的**高度差小于两倍**。具体来说，红黑树满足如下条件：
+
+- 每个节点要么是红色，要么是黑色
+- 根结点是黑色
+- 每个叶子结点（null结点，空节点）是黑色的
+- 不能有相邻接的两个红色结点
+- 从任一结点到其每个叶子的所有路径都包含相同数目的黑色结点
+
+##### 3.3 对比
+
+- 查询：AVL树优于红黑树，因为AVL树是严格平衡的
+- 插入 & 删除：红黑树优于AVL树，红黑树是近似平衡的
+- 存储：红黑树优于AVL树，因为AVL树每个节点需要存储balance factor,红黑树只需要1bit存储颜色信息
+- 红黑树大多数用在语言类库，AVL多用在读多写少，比如数据库中
 
 
 
