@@ -93,6 +93,13 @@ class Solution {
 
 
 
+**Tips**
+
+- 归并排序：逆序对问题
+- 快速排序：TopK问题
+
+
+
 > **参考链接**
 >
 > - [十大经典排序算法](https://www.cnblogs.com/onepixel/p/7674659.html)
