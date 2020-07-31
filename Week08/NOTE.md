@@ -2,48 +2,80 @@
 
 ### 1. 位运算
 
-#### 1.1 位运算基础
+#### 1.1 位运算符
 
-> 又称单词查找树或键树，是一种树形结构。典型应用是用于统计和排序大量的字符串，所以经常被搜索引擎系统用于文本词频统计。
->
-> 优点：最大限度的减少无谓的字符串比较，查找效率比哈希表高。
+- 左移 （ << ）
+- 右移 （ >> ）
+- 或OR （ | ）
+- 与AND （&）
+- 取反NOT （ ～ ）
+- 异或XOR （ ^ ）: 相同为0，不同为1
 
-**基本性质**
+**异或骚操作**
 
-1. 结点本身不存完整单词；
-2. 从根节点到某一节点，路径上经过的字符连接起来，为该节点对应的字符串；
-3. 每个结点的所有子结点路径代表的字符都不相同。
+- x ^ 0 = x
+- x ^ 1s = ~x （1s表示全1，即1s = ~0）
+- x ^ (~x) = 1s
+- x ^ x = 0
+- 交换：c = a^b, b = a^c, a = b^c
+- a^b^c = a^(b^c) = (a^b)^c
 
+**常用位运算**
 
+1. 将 x 最右边的 n 位清零：x &  (~0 << n)
+
+2. 获取 x 的第 n 位值（0 或者1）：(x >> n)  & 1
+
+3. 获取 x 的第n 位的幂值：x & (1 <<n)
+
+4. 仅将第 n 位置为1：x |  (1 << n)
+
+5. 仅将第 n 位置为0：x & (~ (1 << n))
+
+6. 将 x 最高位至第n 位（含）清零：x & ((1 << n) -1) 
+
+7. 将第 n 位至第0 位（含）清零：x & (~ ((1 << (n + 1)) -1))
+
+**位运算实战**
+
+- 判断奇偶：x & 1== 1为基数，==0为偶数
+- x 除以2：x >> 1
+- 清零最低位的1：X = X & (X-1)
+- 得到最低位的1：X & -X
+- X & ~X = 0
 
 **N皇后位运算示例代码**
 
 ```java
-class Solution {
-	private int size; 
-	private int count;
-	private void solve(int row, int ld, int rd) { 
-		if (row == size) { 
-			count++; 
-			return; 
-		}
-		int pos = size & (~(row | ld | rd)); 
-		while (pos != 0) { 
-			int p = pos & (-pos); 
-			pos -= p; // pos &= pos - 1; 
-			solve(row | p, (ld | p) << 1, (rd | p) >> 1); 
-		} 
-	} 
-	public int totalNQueens(int n) { 
-		count = 0; 
-		size = (1 << n) - 1; 
-		solve(0, 0, 0); 
-		return count; 
-  } 
+private int size;
+private int count;
+
+private void solve(int cols, int ld, int rd) {
+    // 递归终止条件：列已经占满了
+    if (cols == size) {
+        count++;
+        return;
+    }
+    // pos表示空余的位置
+    int pos = size & (~(cols | ld | rd));
+    // 遍历所有可用的位置
+    while (pos != 0) {
+        // 从右边开始，取得第一个可用的位置
+        int p = pos & (-pos);
+        // 将第一个位置删除，已使用
+        pos -= p;
+        // 递归调用下一行
+        solve(cols | p, (ld | p) << 1, (rd | p) >> 1);
+    }
+}
+
+public int totalNQueens(int n) {
+    count = 0;
+    size = (1 << n) - 1;
+    solve(0, 0, 0);
+    return count;
 }
 ```
-
-
 
 
 
@@ -61,7 +93,7 @@ class Solution {
 > - [ N 皇后 II ](https://leetcode-cn.com/problems/n-queens-ii/description/)（亚马逊在半年内面试中考过）
 > - [比特位计数](https://leetcode-cn.com/problems/counting-bits/description/)（字节跳动、Facebook、MathWorks 在半年内面试中考过）
 
-### 2. 布隆过滤器
+### 2. 布隆过滤器（Bloom Filter）
 
 
 
