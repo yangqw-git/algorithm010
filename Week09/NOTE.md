@@ -2,7 +2,33 @@
 
 ### 1. 动态规划
 
+> 1. 将复杂问题分解为简单的字问题
+> 2. 分治+最优子结构
+> 3. 顺推形式：动态递推
 
+**DP顺推模板**
+
+```
+function DP():
+	dp=[][] #二维情况
+	for i = 0..M{
+		for j = 0..N{
+			dp[i][j] = function(dp[i'][j']...)
+		}
+	}
+	return dp[M][N];
+```
+
+**关键点**
+
+1. 动态规划和递归，分治没有根本上的区别，关键是看有无最优的子结构
+2. 共性：找重复子问题
+3. 差异性：最优子结构，中途可以淘汰次优解
+
+**复杂度来源**
+
+1. 状态拥有更多的维度，甚至需要压缩
+2. 状态转移方程更加复杂
 
 
 
@@ -19,7 +45,45 @@
 
 ### 2. 字符串算法
 
+**字符串匹配算法**
 
+1. 暴力法
+2. Rabin-Karp算法
+3. KMP算法
+4. Boyer-Moore算法
+5. Sunday算法
+
+**暴力法**
+
+```java
+public static int forceSearch(String txt, String pat) {
+    int M = txt.length();
+    int N = pat.length();
+    for (int i = 0; i <= M - N; i++) {
+        int j;
+        for (j = 0; j < N; j++) {
+            if (txt.charAt(i + j) != pat.charAt(j))
+                break;
+        }
+        if (j == N) {
+            return i;
+        }
+        // 加速
+        // 1. 预先判断 hash(txt.substring(i, M)) == hash(pat)
+        // 2. KMP 
+    }
+    return -1;
+}
+```
+
+**Rabin-Karp算法**
+
+**算法思想**
+
+1. 假设子串的长度为M（pat），目标字符串的长度为N（txt）
+2. 计算子串的hash值hash_pat
+3. 计算目标字符串txt中每个长度为M的子串的hash值（共需要计算N-M+1次）
+4. 比较hash值：如果hash值不同，字符串必然不匹配；如果hash值相同，还需要使用朴素算法再次判断
 
 
 
